@@ -3,25 +3,41 @@
 <link href="css/simple.css" rel="stylesheet" type="text/css">
 <script src='js/jquery.js'></script>
 <script src='js/ajax_global_handlers.js'></script>
+<script src='js/handlebars-v1.3.0.js'></script>
+
+<!-- Template for one article -->
+<script id="article-template" type="text/x-handlebars-template">
+    <dt>{{title}} </dt> <dd> {{body}}</dd>
+</script>
+ 
+ <!-- Template for all the articles -->
+<script id="articles-template" type="text/x-handlebars-template">
+  {{#each remote_articles}}
+      <dt>{{this.title}}</dt>
+      <dd>{{this.body}}</dd>
+  {{/each}}
+</script>
 
 <script>
   $(document).ready(function(){
 
     var buildArticleHTML = function(article){
-       // create HTML for one article
-        // $ before variable name signals this was set by jquery
-        var $articleHTML = $("<dt>").attr('id', article.id).text(article.title);
-        $articleHTML.append($("<dd>").text(article.body));
-        return $articleHTML;
+      // Get the Handlebars template with id article-template
+      var article_source = $('#article-template').html();
+      var template = Handlebars.compile(article_source);
+      var article_html = template(article);
+      return article_html;
     };
 
     var allArticlesCallback = function(articles){
       console.log("Articles = " + articles);
-      articles.forEach(function(article){
-        // Add it the list of articles
-        $('#articles').append(buildArticleHTML(article));
+      var all_articles = {remote_articles: articles},
+      article_source = $('#articles-template').html(),
+      template = Handlebars.compile(article_source);
 
-      }); // end forEach
+      var all_articles_html = template(all_articles);
+      $('#articles').append(all_articles_html);
+
     };  // end allArticlesCallback
 
     $.ajax({
