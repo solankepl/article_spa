@@ -6,16 +6,20 @@
 
 <script>
   $(document).ready(function(){
-    var allArticlesCallback = function(articles){
-      console.log("Articles = " + articles);
-      articles.forEach(function(article){
-        // create HTML for one article
+
+    var buildArticleHTML = function(article){
+       // create HTML for one article
         // $ before variable name signals this was set by jquery
         var $articleHTML = $("<dt>").attr('id', article.id).text(article.title);
         $articleHTML.append($("<dd>").text(article.body));
+        return $articleHTML;
+    };
 
+    var allArticlesCallback = function(articles){
+      console.log("Articles = " + articles);
+      articles.forEach(function(article){
         // Add it the list of articles
-        $('#articles').append($articleHTML);
+        $('#articles').append(buildArticleHTML(article));
 
       }); // end forEach
     };  // end allArticlesCallback
@@ -23,6 +27,26 @@
     $.ajax({
       url: 'http://localhost:3000/articles'
     }).done(allArticlesCallback);
+
+     var newArticleCallback = function(article){
+          // Add The article to the article list
+          $('#articles').append(buildArticleHTML(article));
+     };
+
+    $('#new-article').submit(function(event){
+      var $form = $(event.target),
+      $title = $form.find("input[name='title']").val(),
+      $body = $form.find("input[name='body']").val(),
+      action = $form.attr('action');
+
+      event.preventDefault();
+      $.ajax({
+        url: action,
+        type: 'POST',
+        data: {article: {title: $title, body: $body}},
+        success: newArticleCallback
+      })
+    });
   });
 </script>
 </head>
@@ -35,6 +59,12 @@
 
   <!-- Show errors, warnings and happy thoughts -->
   <div id='msg'></div>
+
+  <form id="new-article" action="http://localhost:3000/articles">
+    <input type="text" name="title" placeholder="Enter a new title">
+    <input type='textarea' name="body" placeholder="Enter new comments">
+    <input type='submit' value="Create Article">
+  </form>
 
   <dl id='articles'>Articles
   </dl>
