@@ -1,0 +1,42 @@
+<html>
+<head>
+<link href="css/simple.css" rel="stylesheet" type="text/css">
+<script src='js/jquery.js'></script>
+<script src='js/ajax_global_handlers.js'></script>
+
+<script>
+  $(document).ready(function(){
+    var allArticlesCallback = function(articles){
+      console.log("Articles = " + articles);
+      articles.forEach(function(article){
+        // create HTML for one article
+        // $ before variable name signals this was set by jquery
+        var $articleHTML = $("<dt>").attr('id', article.id).text(article.title);
+        $articleHTML.append($("<dd>").text(article.body));
+
+        // Add it the list of articles
+        $('#articles').append($articleHTML);
+
+      }); // end forEach
+    };  // end allArticlesCallback
+
+    $.ajax({
+      url: 'http://localhost:3000/articles'
+    }).done(allArticlesCallback);
+  });
+</script>
+</head>
+<body>
+  <h3>Articles SPA</h3>
+  <!-- Busy Spinner -->
+  <div id='ajaxSpinnerContainer', class='centered'>
+    <img src="images/ajax-loader.gif" id="ajaxSpinnerImage" title="Working">
+  </div>
+
+  <div id='msg'></div>
+
+  <dl id='articles'>Articles
+  </dl>
+
+</body>
+</html>
